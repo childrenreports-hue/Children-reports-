@@ -1,0 +1,191 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pine Hills School PRO</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{
+  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:#fff;
+  overflow-x:hidden;
+}
+body::before{
+  content:"";
+  position:fixed;
+  width:200%;height:200%;
+  background: radial-gradient(circle, rgba(0,198,255,0.15), transparent 60%);
+  animation: floatBg 10s linear infinite;
+  z-index:-1;
+}
+@keyframes floatBg{
+  0%{transform:translate(0,0)}
+  50%{transform:translate(-5%,5%)}
+  100%{transform:translate(0,0)}
+}
+.app{max-width:500px;margin:auto;padding:15px;}
+.header{text-align:center;padding:15px 0;font-size:22px;font-weight:600;animation:fadeDown 1s ease;}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+.card{background:rgba(255,255,255,0.08);backdrop-filter:blur(12px);border-radius:15px;padding:15px;margin-bottom:15px;box-shadow:0 10px 25px rgba(0,0,0,0.4);animation:fadeIn 0.5s ease;}
+@keyframes fadeIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+input,select{width:100%;padding:10px;margin:6px 0;border:none;border-radius:8px;}
+button{width:100%;padding:12px;margin-top:10px;background:linear-gradient(135deg,#00c6ff,#0072ff);border:none;border-radius:10px;color:#fff;font-size:15px;cursor:pointer;transition:0.3s;}
+button:hover{transform:scale(1.05);}
+.student{border:1px solid rgba(255,255,255,0.2);padding:10px;border-radius:10px;margin-top:10px;animation:fadeIn 0.4s ease;}
+.badge{padding:3px 8px;border-radius:5px;font-size:11px;background:#00c6ff;display:inline-block;}
+.weak{background:#ff4d4d;padding:5px 8px;border-radius:8px;font-size:12px;margin-top:5px;display:inline-block;}
+.good{background:#00d084;}
+.deleteBtn{background:#ff4d4d;margin-top:8px;}
+.waBtn{background:#25D366;margin-top:8px;}
+.saveBtn{background:#ffa500;margin-top:8px;}
+.reportBox{font-size:12px;margin-top:10px;padding:8px;border-left:3px solid #00c6ff;animation:fadeIn 0.5s ease;}
+</style>
+</head>
+<body><div class="app">
+  <div class="header">📘 Pine Hills School PRO SYSTEM</div>  <div class="card">
+    <input type="text" id="studentName" placeholder="Enter Student Name">
+    <select id="studentClass">
+      <option value="">Select Class</option>
+      <option>KG 1</option><option>KG 2</option>
+      <option>Class 1</option><option>Class 2</option><option>Class 3</option>
+      <option>Class 4</option><option>Class 5</option><option>Class 6</option>
+      <option>Class 7</option><option>Class 8</option><option>Class 9</option>
+    </select>
+    <button onclick="addStudent()">➕ Add Student</button>
+  </div>  <div class="card">
+    <h3>📋 Students</h3>
+    <div id="students"></div>
+  </div>  <div class="card">
+    <h3>🧾 Saved Reports (Newest First)</h3>
+    <div id="reports"></div>
+  </div>
+</div><script>
+let students = JSON.parse(localStorage.getItem('students')) || [];
+let reports = JSON.parse(localStorage.getItem('reports')) || [];
+
+function score(s){
+  let sc=0;
+  if(s.attendance!=='Absent') sc++;
+  if(s.copy==='Good Copy') sc++;
+  if(s.homework==='Homework Complete') sc++;
+  if(s.dress==='Complete') sc++;
+  if(s.behavior==='Good Behavior') sc++;
+  return sc;
+}
+
+function percentage(s){
+  return Math.round((score(s)/5)*100);
+}
+
+function isWeak(s){return score(s)<=2;}
+function isTop(s){return score(s)>=4;}
+
+function addStudent(){
+  let name=studentName.value;
+  let cls=studentClass.value;
+  if(!name||!cls) return;
+
+  students.push({
+    name,class:cls,
+    attendance:'Present',
+    copy:'Good Copy',
+    homework:'Homework Complete',
+    dress:'Complete',
+    behavior:'Good Behavior'
+  });
+
+  save(); render();
+  studentName.value=''; studentClass.value='';
+}
+
+function save(){localStorage.setItem('students',JSON.stringify(students));}
+
+function update(i,k,v){students[i][k]=v;save();render();}
+
+function deleteStudent(i){students.splice(i,1);save();render();}
+
+/* SAVE REPORT (NEWEST FIRST + PERCENTAGE) */
+function saveReport(i){
+  let s=students[i];
+
+  let text=`📘 Report\nName: ${s.name}\nClass: ${s.class}\nAttendance: ${s.attendance}\nCopy: ${s.copy}\nHomework: ${s.homework}\nDress: ${s.dress}\nBehavior: ${s.behavior}\n📊 Percentage: ${percentage(s)}%`;
+
+  reports.unshift({text,time:new Date().toLocaleString()});
+  localStorage.setItem('reports',JSON.stringify(reports));
+
+  renderReports();
+}
+
+function sendWA(i){
+  let s=students[i];
+
+  let text=`📘 Student Report%0AName: ${s.name}%0AClass: ${s.class}%0AAttendance: ${s.attendance}%0ACopy: ${s.copy}%0AHomework: ${s.homework}%0ADress: ${s.dress}%0ABehavior: ${s.behavior}%0A%0A📊 Percentage: ${percentage(s)}%25`;
+
+  saveReport(i);
+  window.open(`https://wa.me/923128499442?text=${text}`);
+}
+
+function render(){
+  let box=document.getElementById('students');
+  box.innerHTML='';
+
+  // NEWEST FIRST DISPLAY
+  students.slice().reverse().forEach((s,idx)=>{
+    let i = students.length - 1 - idx;
+    let hide = s.attendance==='Absent';
+
+    box.innerHTML+=`
+    <div class='student'>
+      <div class='badge'>${s.name} | ${s.class} | Score:${score(s)} | ${percentage(s)}%</div>
+      ${isWeak(s)?'<div class="weak">⚠ Weak</div>':''}
+      ${isTop(s)?'<div class="weak good">🏆 Top</div>':''}
+
+      <select onchange="update(${i},'attendance',this.value)">
+        <option ${s.attendance=='Present'?'selected':''}>Present</option>
+        <option ${s.attendance=='Absent'?'selected':''}>Absent</option>
+      </select>
+
+      ${hide ? '<div class="weak">❌ Absent - No Details</div>' : `
+      <select onchange="update(${i},'copy',this.value)">
+        <option ${s.copy=='Good Copy'?'selected':''}>Good Copy</option>
+        <option ${s.copy=='Bad Copy'?'selected':''}>Bad Copy</option>
+      </select>
+
+      <select onchange="update(${i},'homework',this.value)">
+        <option ${s.homework=='Homework Complete'?'selected':''}>Homework Complete</option>
+        <option ${s.homework=='Not Done'?'selected':''}>Not Done</option>
+      </select>
+
+      <select onchange="update(${i},'dress',this.value)">
+        <option ${s.dress=='Complete'?'selected':''}>Complete</option>
+        <option ${s.dress=='Incomplete'?'selected':''}>Incomplete</option>
+      </select>
+
+      <select onchange="update(${i},'behavior',this.value)">
+        <option ${s.behavior=='Good Behavior'?'selected':''}>Good Behavior</option>
+        <option ${s.behavior=='Bad Behavior'?'selected':''}>Bad Behavior</option>
+      </select>
+      `}
+
+      <button class='saveBtn' onclick='saveReport(${i})'>💾 Save Report</button>
+      <button class='waBtn' onclick='sendWA(${i})'>📲 WhatsApp Send</button>
+      <button class='deleteBtn' onclick='deleteStudent(${i})'>❌ Delete</button>
+    </div>`;
+  });
+
+  renderReports();
+}
+
+function renderReports(){
+  let box=document.getElementById('reports');
+  box.innerHTML='';
+
+  reports.forEach(r=>{
+    box.innerHTML+=`<div class='reportBox'>🧾 ${r.text}<br>⏰ ${r.time}</div>`;
+  });
+}
+
+render();
+</script></body>
+</html>
