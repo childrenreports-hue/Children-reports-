@@ -4,62 +4,158 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pine Hills School PRO</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+
 body{
   background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
   color:#fff;
-  overflow-x:hidden;
 }
+
 .app{max-width:500px;margin:auto;padding:15px;}
+
 .header{text-align:center;padding:15px 0;font-size:22px;font-weight:600;}
-.card{background:rgba(255,255,255,0.08);backdrop-filter:blur(12px);border-radius:15px;padding:15px;margin-bottom:15px;}
+
+.card{
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(12px);
+  border-radius:15px;
+  padding:15px;
+  margin-bottom:15px;
+}
+
 input,select{width:100%;padding:10px;margin:6px 0;border:none;border-radius:8px;}
-button{width:100%;padding:12px;margin-top:10px;background:linear-gradient(135deg,#00c6ff,#0072ff);border:none;border-radius:10px;color:#fff;font-size:15px;cursor:pointer;}
-.student{border:1px solid rgba(255,255,255,0.2);padding:10px;border-radius:10px;margin-top:10px;}
+
+button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  background:linear-gradient(135deg,#00c6ff,#0072ff);
+  border:none;
+  border-radius:10px;
+  color:#fff;
+  font-size:15px;
+  cursor:pointer;
+}
+
+.student{
+  border:1px solid rgba(255,255,255,0.2);
+  padding:10px;
+  border-radius:10px;
+  margin-top:10px;
+}
+
+.student-name{
+  font-size:22px;
+  font-weight:700;
+  text-shadow:0 0 10px #00c6ff;
+}
+
 .badge{padding:3px 8px;border-radius:5px;font-size:11px;background:#00c6ff;display:inline-block;}
 .weak{background:#ff4d4d;padding:5px 8px;border-radius:8px;font-size:12px;margin-top:5px;display:inline-block;}
 .good{background:#00d084;}
+
 .deleteBtn{background:#ff4d4d;margin-top:8px;}
 .waBtn{background:#25D366;margin-top:8px;}
 .saveBtn{background:#ffa500;margin-top:8px;}
-.reportBox{font-size:12px;margin-top:10px;padding:8px;border-left:3px solid #00c6ff;}
+
+.reportBox{
+  font-size:13px;
+  margin-top:10px;
+  padding:10px;
+  border-left:4px solid #00c6ff;
+  background:rgba(255,255,255,0.05);
+  border-radius:10px;
+}
+
+/* BUTTON */
+.historyBtn{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:#00c6ff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  cursor:pointer;
+}
+
+/* POPUP */
+.historyPopup{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.7);
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+
+.popupContent{
+  width:90%;
+  max-height:80%;
+  overflow:auto;
+  background:#1e2f3a;
+  padding:15px;
+  border-radius:15px;
+}
+
+.closeBtn{background:#ff4d4d;}
 </style>
 </head>
+
 <body>
 
 <div class="app">
-  <div class="header">📘 Pine Hills School PRO SYSTEM</div>
 
-  <div class="card">
-    <input type="text" id="studentName" placeholder="Enter Student Name">
-    
-    <select id="studentClass">
-      <option value="">Select Class</option>
-      <option>KG 1</option><option>KG 2</option>
-      <option>Class 1</option><option>Class 2</option><option>Class 3</option>
-      <option>Class 4</option><option>Class 5</option><option>Class 6</option>
-      <option>Class 7</option><option>Class 8</option><option>Class 9</option>
-    </select>
+<div class="header">📘 Pine Hills School PRO SYSTEM</div>
 
-    <input type="text" id="studentSubject" placeholder="Enter Subject">
+<div class="card">
+<input type="text" id="studentName" placeholder="Enter Student Name">
 
-    <button onclick="addStudent()">➕ Add Student</button>
-  </div>
+<select id="studentClass">
+<option value="">Select Class</option>
+<option>KG 1</option><option>KG 2</option>
+<option>Class 1</option><option>Class 2</option>
+<option>Class 3</option><option>Class 4</option>
+<option>Class 5</option><option>Class 6</option>
+<option>Class 7</option><option>Class 8</option>
+<option>Class 9</option>
+</select>
 
-  <div class="card">
-    <h3>📋 Students</h3>
-    <div id="students"></div>
-  </div>
+<input type="text" id="studentSubject" placeholder="Enter Subject">
 
-  <div class="card">
-    <h3>🧾 Saved Reports (Newest First)</h3>
-    <div id="reports"></div>
-  </div>
+<button onclick="addStudent()">➕ Add Student</button>
+</div>
+
+<div class="card">
+<h3>📋 Students</h3>
+<div id="students"></div>
+</div>
+
+</div>
+
+<div class="historyBtn" onclick="openHistory()">📜</div>
+
+<div class="historyPopup" id="historyPopup">
+<div class="popupContent">
+<button class="closeBtn" onclick="closeHistory()">❌ Close</button>
+<h3>🧾 Saved Reports</h3>
+<div id="reports"></div>
+</div>
 </div>
 
 <script>
+
 let students = JSON.parse(localStorage.getItem('students')) || [];
 let reports = JSON.parse(localStorage.getItem('reports')) || [];
 
@@ -99,16 +195,25 @@ function addStudent(){
   });
 
   save(); render();
-  studentName.value=''; 
+
+  studentName.value='';
   studentClass.value='';
   document.getElementById('studentSubject').value='';
 }
 
-function save(){localStorage.setItem('students',JSON.stringify(students));}
+function save(){
+  localStorage.setItem('students',JSON.stringify(students));
+}
 
-function update(i,k,v){students[i][k]=v;save();render();}
+function update(i,k,v){
+  students[i][k]=v;
+  save(); render();
+}
 
-function deleteStudent(i){students.splice(i,1);save();render();}
+function deleteStudent(i){
+  students.splice(i,1);
+  save(); render();
+}
 
 function deleteReport(i){
   reports.splice(i,1);
@@ -145,17 +250,96 @@ Behavior: ${s.behavior}
 }
 
 function sendWA(i){
-  let s=students[i];
+  let s = students[i];
+
+  function mark(value, goodValues){
+    return goodValues.includes(value) ? "✅" : "❌";
+  }
+
   let text;
 
   if(s.attendance === 'Absent'){
-    text=`📘 Student Report%0AName: ${s.name}%0AClass: ${s.class}%0ASubject: ${s.subject}%0A❌ Status: Absent`;
+    text = `📘 *STUDENT REPORT*
+
+👤 *Name:* ${s.name}
+🏫 *Class:* ${s.class}
+📚 *Subject:* ${s.subject}
+
+━━━━━━━━━━━━━━
+
+📅 Attendance: ❌ Absent
+
+⚠ *Student was absent today.*`;
   } else {
-    text=`📘 Student Report%0AName: ${s.name}%0AClass: ${s.class}%0ASubject: ${s.subject}%0AAttendance: ${s.attendance}%0ACopy: ${s.copy}%0AHomework: ${s.homework}%0ADress: ${s.dress}%0ABehavior: ${s.behavior}%0A%0A📊 Percentage: ${percentage(s)}%25`;
+    text = `📘 *STUDENT REPORT*
+
+👤 *Name:* ${s.name}
+🏫 *Class:* ${s.class}
+📚 *Subject:* ${s.subject}
+
+━━━━━━━━━━━━━━
+
+📅 Attendance: ${mark(s.attendance,['Present'])} ${s.attendance}
+📖 Copy: ${mark(s.copy,['Good Copy'])} ${s.copy}
+📝 Homework: ${mark(s.homework,['Homework Complete'])} ${s.homework}
+👕 Dress: ${mark(s.dress,['Complete'])} ${s.dress}
+🙂 Behavior: ${mark(s.behavior,['Good Behavior'])} ${s.behavior}
+
+━━━━━━━━━━━━━━
+
+📊 *Performance:* ${percentage(s)}%`;
   }
 
   saveReport(i);
-  window.open(`https://wa.me/923128499442?text=${text}`);
+
+  let url = "https://wa.me/923128499442?text=" + encodeURIComponent(text);
+  window.open(url,'_blank');
+}
+
+/* 🔥 CLEAN + COLOR REPORT */
+function renderReports(){
+  let box=document.getElementById('reports');
+  box.innerHTML='';
+
+  reports.forEach((r,i)=>{
+
+    let formatted = r.text
+      .replace(/📘 Report/g,'<b style=\"color:#00c6ff;\">📘 Student Report</b><br><br>')
+      .replace(/Name:/g,'<b>👤 Name:</b>')
+      .replace(/Class:/g,'<b>🏫 Class:</b>')
+      .replace(/Subject:/g,'<b>📚 Subject:</b>')
+      .replace(/Attendance:/g,'<b>📅 Attendance:</b>')
+      .replace(/Copy:/g,'<b>📖 Copy:</b>')
+      .replace(/Homework:/g,'<b>📝 Homework:</b>')
+      .replace(/Dress:/g,'<b>👕 Dress:</b>')
+      .replace(/Behavior:/g,'<b>🙂 Behavior:</b>')
+      .replace(/Percentage:/g,'<b>📊 Percentage:</b>')
+
+      // RED
+      .replace(/Absent/g,'<span style=\"color:red;\">Absent</span>')
+      .replace(/Bad Copy/g,'<span style=\"color:red;\">Bad Copy</span>')
+      .replace(/Not Done/g,'<span style=\"color:red;\">Not Done</span>')
+      .replace(/Incomplete/g,'<span style=\"color:red;\">Incomplete</span>')
+      .replace(/Bad Behavior/g,'<span style=\"color:red;\">Bad Behavior</span>')
+
+      // GREEN
+      .replace(/Present/g,'<span style=\"color:#00ff99;\">Present</span>')
+      .replace(/Good Copy/g,'<span style=\"color:#00ff99;\">Good Copy</span>')
+      .replace(/Homework Complete/g,'<span style=\"color:#00ff99;\">Homework Complete</span>')
+      .replace(/Complete/g,'<span style=\"color:#00ff99;\">Complete</span>')
+      .replace(/Good Behavior/g,'<span style=\"color:#00ff99;\">Good Behavior</span>')
+
+      .replace(/\n/g,'<br>');
+
+    box.innerHTML+=`
+    <div class='reportBox'>
+      ${formatted}
+      <br><br>
+      <small>⏰ ${r.time}</small>
+      <br>
+      <button class='deleteBtn' onclick='deleteReport(${i})'>❌ Delete</button>
+    </div>`;
+  });
 }
 
 function render(){
@@ -168,16 +352,18 @@ function render(){
 
     box.innerHTML+=`
     <div class='student'>
-      <div class='badge'>${s.name} | ${s.class} | ${s.subject} | Score:${score(s)} | ${percentage(s)}%</div>
-      ${isWeak(s)?'<div class="weak">⚠ Weak</div>':''}
-      ${isTop(s)?'<div class="weak good">🏆 Top</div>':''}
+      <div class='student-name'>👤 ${s.name}</div>
+      <div class='badge'>${s.class} | ${s.subject} | Score:${score(s)} | ${percentage(s)}%</div>
+
+      ${isWeak(s)?'<div class=\"weak\">⚠ Weak</div>':''}
+      ${isTop(s)?'<div class=\"weak good\">🏆 Top</div>':''}
 
       <select onchange="update(${i},'attendance',this.value)">
         <option ${s.attendance=='Present'?'selected':''}>Present</option>
         <option ${s.attendance=='Absent'?'selected':''}>Absent</option>
       </select>
 
-      ${hide ? '<div class="weak">❌ Absent - No Details</div>' : `
+      ${hide ? '<div class=\"weak\">❌ Absent - No Details</div>' : `
       <select onchange="update(${i},'copy',this.value)">
         <option ${s.copy=='Good Copy'?'selected':''}>Good Copy</option>
         <option ${s.copy=='Bad Copy'?'selected':''}>Bad Copy</option>
@@ -208,21 +394,16 @@ function render(){
   renderReports();
 }
 
-function renderReports(){
-  let box=document.getElementById('reports');
-  box.innerHTML='';
+function openHistory(){
+  document.getElementById('historyPopup').style.display='flex';
+}
 
-  reports.forEach((r,i)=>{
-    box.innerHTML+=`
-    <div class='reportBox'>
-      🧾 ${r.text}<br>
-      ⏰ ${r.time}
-      <button class='deleteBtn' onclick='deleteReport(${i})'>❌ Delete</button>
-    </div>`;
-  });
+function closeHistory(){
+  document.getElementById('historyPopup').style.display='none';
 }
 
 render();
+
 </script>
 
 </body>
