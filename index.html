@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pine Hills School PRO</title>
 
@@ -252,42 +253,58 @@ Behavior: ${s.behavior}
 function sendWA(i){
   let s = students[i];
 
+  const icon = {
+    report: "\u{1F4D8}",
+    user: "\u{1F464}",
+    school: "\u{1F3EB}",
+    book: "\u{1F4DA}",
+    calendar: "\u{1F4C5}",
+    copy: "\u{1F4D6}",
+    homework: "\u{1F4DD}",
+    dress: "\u{1F455}",
+    behavior: "\u{1F642}",
+    chart: "\u{1F4CA}",
+    ok: "\u2705",
+    no: "\u274C",
+    warn: "\u26A0"
+  };
+
   function mark(value, goodValues){
-    return goodValues.includes(value) ? "✅" : "❌";
+    return goodValues.includes(value) ? icon.ok : icon.no;
   }
 
   let text;
 
   if(s.attendance === 'Absent'){
-    text = `📘 *STUDENT REPORT*
+    text = `${icon.report} *STUDENT REPORT*
 
-👤 *Name:* ${s.name}
-🏫 *Class:* ${s.class}
-📚 *Subject:* ${s.subject}
+${icon.user} *Name:* ${s.name}
+${icon.school} *Class:* ${s.class}
+${icon.book} *Subject:* ${s.subject}
 
 ━━━━━━━━━━━━━━
 
-📅 Attendance: ❌ Absent
+${icon.calendar} Attendance: ${icon.no} Absent
 
-⚠ *Student was absent today.*`;
+${icon.warn} *Student was absent today.*`;
   } else {
-    text = `📘 *STUDENT REPORT*
+    text = `${icon.report} *STUDENT REPORT*
 
-👤 *Name:* ${s.name}
-🏫 *Class:* ${s.class}
-📚 *Subject:* ${s.subject}
-
-━━━━━━━━━━━━━━
-
-📅 Attendance: ${mark(s.attendance,['Present'])} ${s.attendance}
-📖 Copy: ${mark(s.copy,['Good Copy'])} ${s.copy}
-📝 Homework: ${mark(s.homework,['Homework Complete'])} ${s.homework}
-👕 Dress: ${mark(s.dress,['Complete'])} ${s.dress}
-🙂 Behavior: ${mark(s.behavior,['Good Behavior'])} ${s.behavior}
+${icon.user} *Name:* ${s.name}
+${icon.school} *Class:* ${s.class}
+${icon.book} *Subject:* ${s.subject}
 
 ━━━━━━━━━━━━━━
 
-📊 *Performance:* ${percentage(s)}%`;
+${icon.calendar} Attendance: ${mark(s.attendance,['Present'])} ${s.attendance}
+${icon.copy} Copy: ${mark(s.copy,['Good Copy'])} ${s.copy}
+${icon.homework} Homework: ${mark(s.homework,['Homework Complete'])} ${s.homework}
+${icon.dress} Dress: ${mark(s.dress,['Complete'])} ${s.dress}
+${icon.behavior} Behavior: ${mark(s.behavior,['Good Behavior'])} ${s.behavior}
+
+━━━━━━━━━━━━━━
+
+${icon.chart} *Performance:* ${percentage(s)}%`;
   }
 
   saveReport(i);
